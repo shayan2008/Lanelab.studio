@@ -1,4 +1,4 @@
-# LaneLab Swim Studio v23
+# LaneLab Swim Studio v24.1
 
 LaneLab is a production-ready swim coaching workspace for workout design, lane planning, deck delivery, season calendars, race intelligence, and coach-reviewed AI. This release is prepared for Cloudflare Workers at **https://lanelab.studio**.
 
