@@ -1,83 +1,57 @@
-# LaneLab Swim Studio v24.1
+# LaneLab
 
-LaneLab is a production-ready swim coaching workspace for workout design, lane planning, deck delivery, season calendars, race intelligence, and coach-reviewed AI. This release is prepared for Cloudflare Workers at **https://lanelab.studio**.
+Swimming software for coaches and athletes — practice planning, race analysis, and AI coaching in one workspace.
 
-## Deploy after your Cloudflare nameserver step
+Live at **[lanelab.studio](https://lanelab.studio)**.
 
-On your Windows computer:
+I built LaneLab as a competitive swimmer and coach: the planning, split analysis and set-writing work that normally happens across a whiteboard, a stopwatch and three spreadsheets, in one place.
 
-1. Extract this ZIP.
-2. Confirm Cloudflare shows `lanelab.studio` as **Active**.
-3. In Cloudflare DNS, delete the old Porkbun parking records: the two `207.207.210.*` apex A records and the `pixie.porkbun.com` CNAME records for `www` and `*`.
-4. Open PowerShell in the extracted project folder.
-5. Run:
+## What it does
 
-```powershell
-Set-ExecutionPolicy -Scope Process Bypass
-.\scripts\setup-cloudflare.ps1
-```
+| Area | Detail |
+| --- | --- |
+| Race intelligence | Event and race reference data, split analysis, scoring, LCM / SCM / SCY course conversions |
+| Strategy planner | Pacing and split plans from athlete inputs, with separate coach and athlete views and PDF export |
+| Practice builder | Session building, lane plans and deck sheets |
+| AI coaching | Coach chat, swim-set analysis and image-based set input, powered by Gemini |
+| Season calendar | Planning across a training cycle |
 
-The wizard installs exact packages, signs in to Cloudflare, creates or finds the D1 database, inserts its real ID into `wrangler.jsonc`, applies the login migrations, securely prompts for optional Gemini and Resend keys, builds the production Worker, and deploys both `lanelab.studio` and `www.lanelab.studio`.
+## Stack
 
-Read [README_V23_DEPLOYMENT.md](./README_V23_DEPLOYMENT.md) for exact dashboard steps, troubleshooting, local development, and secret-management commands.
+| Layer | Technology |
+| --- | --- |
+| Framework | Next.js 16, React 19, React Server Components |
+| Build | Vite 8, TypeScript 5.9 |
+| Runtime | Cloudflare Workers |
+| Database | Cloudflare D1 with Drizzle ORM |
+| AI | Google Gemini (`@google/genai`) |
+| UI | Tailwind CSS 4, Motion, Lucide |
+| Documents | pdf-lib for report and deck-sheet export |
 
-## What is included
-
-- Public, responsive LaneLab landing page with editorial swimming photography, platform storytelling, top-right login/sign-up actions, contact section, accessible navigation, and production social metadata.
-- Email/password login and D1-backed account creation with full name, optional phone, swim club, role, city, and course.
-- Repeated password validation on sign-up and password reset.
-- PBKDF2-SHA-256 password hashing with per-user salts and 210,000 iterations.
-- Hashed 30-day session tokens in HttpOnly, Secure, SameSite cookies.
-- Forgot-password and single-use reset-token flow with 20-minute expiry and session revocation.
-- Terms of Service, Privacy Policy, Contact, custom 404, and security headers.
-- Authenticated studio and Gemini routes.
-- Coach Block AI text and image input for JPEG, PNG, and WebP files up to 6 MB. Images are sent only with the protected request and are not stored in D1 or R2 by this release.
-- Collapsible application sidebar, closable builder library and inspector, focus-canvas mode, and corrected panel sizing.
-- Week, Month, and Year calendar views.
-- Cloudflare Worker, static asset, Images, D1, custom-domain, and Smart Placement configuration.
-- Windows setup/deploy wizard, checked-in D1 migrations, local secret templates, and release validator.
-
-## Routes
-
-- `/` — public landing page
-- `/login` and `/signup` — account access
-- `/forgot-password` and `/reset-password` — account recovery
-- `/terms`, `/privacy`, and `/contact` — trust and support pages
-- `/studio` — authenticated coaching workspace
-- `/api/health` — deployment and AI configuration health
-
-## Runtime services
-
-| Service | Binding or secret | Purpose | Required |
-|---|---|---|---|
-| Cloudflare D1 | `DB` | Users, hashed sessions, reset tokens | Yes |
-| Worker Assets | `ASSETS` | Built site assets | Yes |
-| Cloudflare Images | `IMAGES` | Vinext image optimization | Configured |
-| Gemini | `GEMINI_API_KEY` | Live coach AI and image review | Optional |
-| Gemini File Search | `GEMINI_FILE_SEARCH_STORE` | Reviewed coaching knowledge retrieval | Optional |
-| Resend | `RESEND_API_KEY` | Password-reset email delivery | Optional |
-
-API keys are never placed in client code or committed configuration. The setup wizard stores them as encrypted Cloudflare Worker secrets.
-
-## Local development
-
-Requirements: Node.js 22.13 or newer and npm.
-
-```powershell
-npm ci
-Copy-Item .dev.vars.example .dev.vars
-npm run db:migrate:local
-npm run dev
-```
-
-Add local-only keys to `.dev.vars`. The file is ignored by Git. Without Gemini, LaneLab uses its offline coaching fallback. Without Resend, the recovery endpoint stays account-enumeration safe but does not send email.
-
-## Verification
+## Development
 
 ```bash
-npm run release:validate
-npm run lint
-npm test
+npm run install:ci   # install
+npm run dev          # local dev server
+npm run build        # verified production build
+npm test             # build + race intelligence + AI policy + render tests
 ```
 
-This source package corresponds to **LaneLab Swim Studio v23** (`5.0.0`).
+Deploy and database:
+
+```bash
+npm run deploy:cloudflare
+npm run db:generate           # generate migrations from schema
+npm run db:migrate:local      # apply locally
+npm run db:migrate:remote     # apply to the deployed D1 database
+```
+
+Copy `.env.example` and `.dev.vars.example` before running locally.
+
+## Testing
+
+The suite covers more than smoke tests: `test:race` checks the race-intelligence maths (conversions, split arithmetic, scoring), and `test:ai-policy` enforces guardrails on what the coaching model is allowed to assert — a coaching tool that invents training advice is worse than no tool.
+
+## Project
+
+Entered in CAYIA 2026. Engineering and coaching workflow by [Shayan Doroudiani](https://github.com/shayan2008); product, design and commercialisation by Yichen Liu.
