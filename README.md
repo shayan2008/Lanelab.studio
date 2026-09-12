@@ -1,6 +1,6 @@
 # LaneLab
 
-Swimming software for coaches and athletes — practice planning, race analysis, and AI coaching in one workspace.
+Swimming software for coaches and athletes: practice planning, race analysis, and AI coaching in one workspace.
 
 Live at **[lanelab.studio](https://lanelab.studio)**.
 
@@ -50,7 +50,7 @@ Copy `.env.example` and `.dev.vars.example` before running locally.
 
 ## Testing
 
-The suite covers more than smoke tests: `test:race` checks the race-intelligence maths (conversions, split arithmetic, scoring), and `test:ai-policy` enforces guardrails on what the coaching model is allowed to assert — a coaching tool that invents training advice is worse than no tool.
+The suite covers more than smoke tests: `test:race` checks the race-intelligence maths (conversions, split arithmetic, scoring), and `test:ai-policy` enforces guardrails on what the coaching model is allowed to assert, because a coaching tool that invents training advice is worse than no tool.
 
 ## Project
 
